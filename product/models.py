@@ -14,29 +14,34 @@ catagory_choice = (
     ('Megamix', 'Megamix'),
     ('Skewb', 'Skewb'),
     ('Square-1', 'Square-1'),
-    ('Magic Cube', 'Magic Cube'),
+    ('Mirror Cube', 'Mirror Cube'),
     ('Gear Cube', 'Gear Cube'),
     ('Locking Puzzels', 'Locking Puzzels'),
 )
 
 
 class Product(models.Model):
-    title = models.CharField(max_length=50)
-    description = models.CharField(max_length=350)
+    title = models.CharField(max_length=50, default=None)
+    description = models.CharField(
+        max_length=350, default="Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis soluta in placeat et expedita atque ratione dolorem temporibus accusantium, excepturi dicta neque perferendis eaque natus quam quod vel, optio mollitia", blank=True)
+    img = models.ImageField(upload_to='Product images', blank=True, null=True)
     rating = models.IntegerField(default=3, validators=[
         MaxValueValidator(5), MinValueValidator(0)])
     price = models.IntegerField(validators=[MinValueValidator(0)])
     discount = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(100)])
-    avalibility = models.BooleanField(default=False)
+    avalibility = models.BooleanField(default=True)
     max_order_quantity = models.IntegerField(
-        default=1, validators=[MaxValueValidator(100), MinValueValidator(1)])
+        default=10, validators=[MaxValueValidator(100), MinValueValidator(1)])
     returnable = models.BooleanField(default=False)
     no_contact_delivery = models.BooleanField(default=True)
-    weight_kg = models.IntegerField(
-        validators=[MinValueValidator(10), MaxValueValidator(100)])
+    # in grams
+    weight = models.IntegerField(
+        validators=[MinValueValidator(10), MaxValueValidator(1000)], default=200)
     color = models.CharField(max_length=20, default='No available')
-    # featured =
     type = models.CharField(
         choices=typeChoice, max_length=50, default='general')
-    # catagory = m odels.CharField(max_length=50, choices=catagory_choice)
+    catagory = models.CharField(max_length=50, choices=catagory_choice)
+
+    def __str__(self):
+        return self.title + ' - ' + f"[{self.catagory}]"

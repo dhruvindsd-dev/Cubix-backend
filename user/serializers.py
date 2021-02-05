@@ -11,6 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    date = serializers.SerializerMethodField()
+
+    def get_date(self, obj):
+        return obj.date.strftime('%b %y')
+
     class Meta:
         model = Order
         fields = ('__all__')

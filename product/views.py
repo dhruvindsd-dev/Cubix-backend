@@ -1,18 +1,19 @@
+from django.db.models import Q
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .serializer import ProductCardSerialiazer, ProductPageSerialiazer
+
 from .models import Product
-from django.db.models import Q
+from .serializer import ProductCardSerialiazer, ProductPageSerialiazer
 
 
 @api_view(['GET'])
-def getHomePageContent(request):
+def get_home_page_content(request):
     # geting all the types excluding the general one
     trendingCubes = Product.objects.all().filter(type="trending")
     topSellingCubes = Product.objects.all().filter(type="top_sellers")
     bestCubes = Product.objects.all().filter(type="best_cubes")
-    # serialize everything
+
     trendingCubes = ProductCardSerialiazer(trendingCubes, many=True)
     topSellingCubes = ProductCardSerialiazer(topSellingCubes, many=True)
     bestCubes = ProductCardSerialiazer(bestCubes, many=True)
@@ -24,20 +25,18 @@ def getHomePageContent(request):
 
 
 @api_view(['GET'])
-def productData(request, id):
+def get_product_data(request, id):
     try:
         product = Product.objects.get(id=id)
     except:
         return Response({'error': 'invalid id'})
     else:
         product = ProductPageSerialiazer(product)
-    return Response({
-        "product": product.data
-    })
+    return Response(product.data)
 
 
 @api_view(['GET'])
-def productSearch(request):
+def product_search(request):
     # if keyword in title or description
     keywords = request.GET.get('search').split(' ')
     titleQ = Q()

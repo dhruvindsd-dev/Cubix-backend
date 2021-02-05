@@ -8,6 +8,8 @@ from django.db import models
 
 # using the default djngo user model
 
+# whenever the user is created the token, wishlist and cart will automatically be created
+
 
 @receiver(post_save, sender=User)
 def createAuthToken(sender, instance=None, created=False, **kwargs):
@@ -17,7 +19,7 @@ def createAuthToken(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-class WishList(models   .Model):
+class WishList(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product)
 

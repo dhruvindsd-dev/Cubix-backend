@@ -13,7 +13,7 @@ from .serializers import OrderSerializer
 
 
 @api_view(['POST'])
-def signUp(request):
+def sign_up(request):
     data = request.data
     # username, email, password, firstname, lastname
     if 'username' in data and 'password' in data and 'email' in data and 'firstName' in data and 'lastName' in data:
@@ -47,7 +47,7 @@ def signUp(request):
 
 
 @api_view(['POST'])
-def getToken(request):
+def get_token(request):
     # sign in
     data = request.data
     if 'username' in data and 'password' in data:
@@ -55,6 +55,7 @@ def getToken(request):
             username=data['username'], password=data["password"])
         if user is not None:
             token = Token.objects.get(user=user)
+            print(user.user_permissions.all())
             return Response({
                 'token': token.key,
                 'username': user.username,
@@ -73,7 +74,7 @@ def getToken(request):
 # # add,removew from cart and wishlist
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def handleCart(request, type, id):
+def handle_cart(request, type, id):
     try:
         product = Product.objects.get(id=id)
     except:
@@ -84,39 +85,39 @@ def handleCart(request, type, id):
         if type == 'add':
             cart.products.add(product)
             cart.save()
-            return Response({"add": 'add'}, status=status.HTTP_200_OK)
+            return Response({'product added'}, status=status.HTTP_200_OK)
         elif type == 'remove':
             cart.products.remove(product)
             cart.save()
-            return Response({"remove": 'remove'}, status=status.HTTP_200_OK)
+            return Response("product removed", status=status.HTTP_200_OK)
         else:
-            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("invalid action", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def handleWishList(request, type, id):
+def handle_wish_list(request, type, id):
     try:
         product = Product.objects.get(id=id)
     except:
-        return Response({"error": "invalid id"})
+        return Response("invalid id ")
     else:
         wishlist = WishList.objects.get(user=request.user)
         if type == 'add':
             wishlist.products.add(product)
             wishlist.save()
-            return Response({"add": 'add'}, status=status.HTTP_200_OK)
+            return Response("product added", status=status.HTTP_200_OK)
         elif type == 'remove':
             wishlist.products.remove(product)
             wishlist.save()
-            return Response({"remove": 'remove'}, status=status.HTTP_200_OK)
+            return Response("product removed", status=status.HTTP_200_OK)
         else:
-            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            return Response("invalid action", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getUserCart(request):
+def get_user_cart(request):
     cart = Cart.objects.get(user=request.user)
     products = cart.products.all()
     products = ProductCardSerialiazer(products, many=True)
@@ -125,16 +126,16 @@ def getUserCart(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getUserWishList(request):
+def get_user_wish_list(request):
     wishlist = WishList.objects.get(user=request.user)
     products = wishlist.products.all()
     products = ProductCardSerialiazer(products, many=True)
-    return Response({'products': products.data})
+    return Response(products.data)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getUserOrders(request):
+def get_user_orders(request):
     orders = Order.objects.filter(user=request.user)
     orders = OrderSerializer(orders, many=True)
     return Response(orders.data)
@@ -142,15 +143,13 @@ def getUserOrders(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def handleOrders(request):
-    # so im doing this from front end which is a bit risky, instead get the user,get his cart, loop through it and convert that to orders and also clear his cart
+def handle_orders(request):
     cart = Cart.objects.get(user=request.user)
+    # add cart products to orders
     for product in cart.products.all():
-        # add to orders
         Order.objects.create(title=product.title, productId=product.id,
                              price=product.price, discount=product.discount, user=request.user)
     # clear cart after placing the order
     cart.products.clear()
     cart.save()
-
-    return Response({"add": 'add'}, status=status.HTTP_200_OK)
+    return Response("order placed", status=status.HTTP_200_OK)
