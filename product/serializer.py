@@ -6,7 +6,7 @@ class ProductCardSerialiazer(serializers.ModelSerializer):
     img = serializers.SerializerMethodField()
 
     def get_img(self, obj):
-        return f'http://127.0.0.1:8000/{obj.img}'
+        return f'https://cubix.pythonanywhere.com/{obj.img}'
 
     class Meta:
         model = Product
@@ -19,7 +19,7 @@ class ProductPageSerialiazer(serializers.ModelSerializer):
     img = serializers.SerializerMethodField()
 
     def get_img(self, obj):
-        return f"http://127.0.0.1:8000/{obj.img}"
+        return f"https://cubix.pythonanywhere.com/{obj.img}"
 
     class Meta:
         model = Product
