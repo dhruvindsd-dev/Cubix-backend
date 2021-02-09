@@ -39,7 +39,7 @@ class Product(models.Model):
     weight = models.IntegerField(
         validators=[MinValueValidator(10), MaxValueValidator(1000)], default=200)
     color = models.CharField(max_length=20, default='No available')
-    type = models.CharField(
+    popularity = models.CharField(
         choices=typeChoice, max_length=50, default='general')
     catagory = models.CharField(max_length=50, choices=catagory_choice)
 

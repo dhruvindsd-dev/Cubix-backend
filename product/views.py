@@ -10,9 +10,9 @@ from .serializer import ProductCardSerialiazer, ProductPageSerialiazer
 @api_view(['GET'])
 def get_home_page_content(request):
     # geting all the types excluding the general one
-    trendingCubes = Product.objects.all().filter(type="trending")
-    topSellingCubes = Product.objects.all().filter(type="top_sellers")
-    bestCubes = Product.objects.all().filter(type="best_cubes")
+    trendingCubes = Product.objects.all().filter(popularity="trending")
+    topSellingCubes = Product.objects.all().filter(popularity="top_sellers")
+    bestCubes = Product.objects.all().filter(popularity="best_cubes")
 
     trendingCubes = ProductCardSerialiazer(trendingCubes, many=True)
     topSellingCubes = ProductCardSerialiazer(topSellingCubes, many=True)
@@ -38,12 +38,24 @@ def get_product_data(request, id):
 @api_view(['GET'])
 def product_search(request):
     # if keyword in title or description
-    keywords = request.GET.get('search').split(' ')
-    titleQ = Q()
-    deescriptionQ = Q()
-    for i in keywords:
-        titleQ = titleQ & Q(title__contains=i)
-        deescriptionQ = deescriptionQ & Q(description__contains=i)
-    product = Product.objects.filter(titleQ | deescriptionQ)
-    product = ProductCardSerialiazer(product, many=True)
-    return Response({'products': product.data})
+    data = request.GET
+    if 'search' in data and 'catagory' in data:
+        keywords = data.get('search').split(' ')
+        catagory = data.get('catagory')
+        titleQ = Q()
+        descriptionQ = Q()
+        catagoryQ = Q(catagory=catagory)
+        for keyword in keywords:
+            titleQ = titleQ & Q(title__contains=keyword)
+            descriptionQ = descriptionQ & Q(description__contains=keyword)
+        if keywords[0] == '' and catagory != 'all':
+            product = Product.objects.filter(catagoryQ)
+        elif catagory == 'all':
+            product = Product.objects.filter(titleQ | descriptionQ)
+        else:
+            product = Product.objects.filter(
+                (titleQ | descriptionQ) & catagoryQ)
+        product = ProductCardSerialiazer(product, many=True)
+        return Response({'products': product.data})
+    else:
+        return Response('invalid fields')

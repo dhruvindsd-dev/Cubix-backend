@@ -12,11 +12,25 @@ from product.serializer import ProductCardSerialiazer
 from .serializers import OrderSerializer
 
 
+def handle_cart_while_auth(userCart, user):
+    userCart = userCart.split(',')
+    if userCart[0] == '':
+        return
+    cart = Cart.objects.get(user=user)
+    for productId in userCart:
+        try:
+            product = Product.objects.get(id=int(productId))
+        except:
+            pass
+        else:
+            cart.products.add(product)
+
+
 @api_view(['POST'])
 def sign_up(request):
     data = request.data
     # username, email, password, firstname, lastname
-    if 'username' in data and 'password' in data and 'email' in data and 'firstName' in data and 'lastName' in data:
+    if 'username' in data and 'password' in data and 'email' in data and 'firstName' in data and 'lastName' in data and 'cart' in data:
         try:
             user = User.objects.get(username=request.data['username'])
         except:
@@ -28,6 +42,7 @@ def sign_up(request):
                 first_name=request.data['firstName'],
                 last_name=request.data['lastName'],
             )
+            handle_cart_while_auth(data['cart'], user)
             token = Token.objects.get(user=user)
             return Response({
                 'token': token.key,
@@ -50,12 +65,12 @@ def sign_up(request):
 def get_token(request):
     # sign in
     data = request.data
-    if 'username' in data and 'password' in data:
+    if 'username' in data and 'password' in data and 'cart' in data:
         user = authenticate(
             username=data['username'], password=data["password"])
         if user is not None:
             token = Token.objects.get(user=user)
-            print(user.user_permissions.all())
+            handle_cart_while_auth(data['cart'], user)
             return Response({
                 'token': token.key,
                 'username': user.username,
@@ -148,6 +163,7 @@ def handle_orders(request):
     # add cart products to orders
     for product in cart.products.all():
         Order.objects.create(title=product.title, productId=product.id,
+                             imgLink=str(product.img),
                              price=product.price, discount=product.discount, user=request.user)
     # clear cart after placing the order
     cart.products.clear()

@@ -12,6 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     date = serializers.SerializerMethodField()
+    img = serializers.SerializerMethodField()
+
+    def get_img(self, obj):
+        return f"http://127.0.0.1:8000/{obj.imgLink}"
 
     def get_date(self, obj):
         return obj.date.strftime('%b %y')

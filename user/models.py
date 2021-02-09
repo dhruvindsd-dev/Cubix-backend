@@ -29,7 +29,9 @@ class Cart(models.Model):
     products = models.ManyToManyField(Product)
 
 
-class Order(models.Model):
+class Order(models.Model):  # the product data can change after the user has made the order, img storing everything of the original data
+    imgLink = models.CharField(
+        max_length=100, default=None, null=True, blank=True)
     title = models.CharField(max_length=50)
     productId = models.IntegerField()
     price = models.IntegerField()
