@@ -31,8 +31,15 @@ def get_product_data(request, id):
     except:
         return Response({'error': 'invalid id'})
     else:
+        # also send some product recomendations, 3 cubes in the same catagory or any catagory
+        recomendations = Product.objects.filter(
+            catagory=product.catagory).exclude(id=product.id)
+        recomendations = ProductCardSerialiazer(recomendations, many=True)
         product = ProductPageSerialiazer(product)
-    return Response(product.data)
+    return Response({
+        "product": product.data,
+        "recomendation": recomendations.data
+    })
 
 
 @api_view(['GET'])
