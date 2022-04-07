@@ -1,8 +1,9 @@
-from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import Order
-from product.serializer import ProductCardSerialiazer
 from cubixBackend.settings import HOST_URL
+from django.contrib.auth.models import User
+from product.serializer import ProductCardSerialiazer
+from rest_framework import serializers
+
+from .models import Order
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,7 +17,7 @@ class OrderSerializer(serializers.ModelSerializer):
     img = serializers.SerializerMethodField()
 
     def get_img(self, obj):
-        return f"{HOST_URL}/{obj.imgLink}"
+        return obj.imgLink
 
     def get_date(self, obj):
         return obj.date.strftime('%b %y')

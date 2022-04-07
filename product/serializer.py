@@ -1,13 +1,15 @@
-from rest_framework import serializers
-from .models import Product
 from cubixBackend.settings import HOST_URL
+from rest_framework import serializers
+
+from .models import Product
 
 
 class ProductCardSerialiazer(serializers.ModelSerializer):
-    img = serializers.SerializerMethodField()
+    # img = serializers.SerializerMethodField()
 
-    def get_img(self, obj):
-        return f'{HOST_URL}/{obj.img}'
+    # def get_img(self, obj):
+    #     return obj.img
+
 
     class Meta:
         model = Product
@@ -17,10 +19,6 @@ class ProductCardSerialiazer(serializers.ModelSerializer):
 
 
 class ProductPageSerialiazer(serializers.ModelSerializer):
-    img = serializers.SerializerMethodField()
-
-    def get_img(self, obj):
-        return f"{HOST_URL}/{obj.img}"
 
     class Meta:
         model = Product
